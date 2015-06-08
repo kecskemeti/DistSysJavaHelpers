@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>hu.mta.sztaki.lpds.cloud.simulator</groupId>
+	<artifactId>DistSysJavaHelpers</artifactId>
+	<version>1.0</version>
+	<name>DistSysJavaHelpers</name>
+	<description>Helper classes to support simulations of large scale distributed systems</description>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<inceptionYear>2012</inceptionYear>
+	<organization>
+		<name>MTA SZTAKI</name>
+	</organization>
+	<licenses>
+		<license>
+			<name>GNU General Public License (GPL) version 3.0</name>
+			<url>http://www.gnu.org/licenses/gpl.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+                        <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-javadoc-plugin</artifactId>
+                                <version>2.10.1</version>
+                                <configuration>
+                                        <show>private</show>
+                                </configuration>
+                        </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+		<resources>
+			<resource>
+				<directory>${basedir}</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>COPYING</include>
+					<include>README.md</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>
