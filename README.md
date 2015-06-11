@@ -24,4 +24,4 @@ Where `[VERSION]` stands for the currently installed version of the example set.
 
 The documentation for the helper classes will be generated in the following subfolder of the main dir of the checkout:
 
-`target/site/apidocs
+`target/site/apidocs`
