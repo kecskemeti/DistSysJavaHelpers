@@ -93,13 +93,73 @@ public class GWFReader extends TraceFileReaderFoundation {
 	 * Parses a single line of the tracefile and instantiates a job object out
 	 * of it.
 	 * 
+	 * Allows the creation of a job object using the GWA trace line format.
+	 * 
+	 * Supports GWA traces with millisecond time base (useful to load traces
+	 * produced by the ASKALON workflow environment of University of Innsbruck).
+	 * 
 	 * Uses the Job classes textual - Job(String) - constructor! This is ensured
 	 * in the getCreator function as well.
 	 */
 	@Override
-	public Job createJobFromLine(String line) throws IllegalArgumentException,
+	public Job createJobFromLine(String jobstring) throws IllegalArgumentException,
 			InstantiationException, IllegalAccessException,
 			InvocationTargetException {
+		boolean askalon = jobstring.endsWith("ASKALON");
+		final int maxLen = 14;
+		char[] str = jobstring.toCharArray();
+		StringBuffer[] elements = new StringBuffer[maxLen];
+		int j = 0;
+		for (j = 0; j < maxLen; j++) {
+			elements[j] = new StringBuffer(12);
+		}
+		boolean wrt = false;
+		j = 0;
+		for (int i = 0; i < str.length; i++) {
+			if (str[i] == ' ' || str[i] == '\t') {
+				if (!wrt) {
+					continue;
+				} else {
+					j++;
+					if (j == maxLen) {
+						break;
+					}
+					wrt = false;
+				}
+			} else {
+				wrt = true;
+				elements[j].append(str[i]);
+			}
+		}
+		// Simple but significantly slower (3x)
+		// String[] elements = jobstring.split("\\s+");
+		id = Integer.parseInt(elements[0].toString());
+		submittimeSecs = Long.parseLong(askalon ? elements[1].substring(0,
+				elements[1].length() - 3) : elements[1].toString());
+		queuetimeSecs = Math.max(0, Long.parseLong(elements[2].toString()));
+		exectimeSecs = Math.max(0, Long.parseLong(elements[3].toString()));
+		nprocs = Math.max(1, Integer.parseInt(elements[4].toString()));
+		user = parseTextualField(elements[11].toString());
+		executable = parseTextualField(elements[13].toString());
+		stoptimeSecs = queuetimeSecs + exectimeSecs + submittimeSecs;
+		starttimeSecs = submittimeSecs + queuetimeSecs;
+		midExecInstanceSecs = starttimeSecs + exectimeSecs / 2;
+		preceeding = null;
+		thinkTimeAfterPreceeding = 0;
 		return jobCreator.newInstance(line);
 	}
+
+	/**
+	 * Checks if the particular GWA line entry contains useful data.
+	 * 
+	 * @param unparsed
+	 *            the text to be checked for usefulness.
+	 * @return the text altered after usefulness checking. If the text is not
+	 *         useful then the string "N/A" is returned.
+	 */
+	private String parseTextualField(final String unparsed) {
+		return unparsed.equals("-1") ? "N/A" : unparsed;
+		// unparsed.matches("^-?[0-9](?:\\.[0-9])?$")?"N/A":unparsed;
+	}
+
 }

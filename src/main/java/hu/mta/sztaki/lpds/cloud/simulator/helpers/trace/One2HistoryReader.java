@@ -25,7 +25,6 @@ package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -71,17 +70,6 @@ public class One2HistoryReader extends TraceFileReaderFoundation {
 	}
 
 	/**
-	 * Ensures the use of the typed constructor (of the Job class) with the
-	 * "jobCreator".
-	 */
-	@Override
-	protected Constructor<? extends Job> getCreator(Class<? extends Job> jobType)
-			throws SecurityException, NoSuchMethodException {
-		return jobType.getConstructor(long.class, long.class, long.class,
-				int.class, String.class, String.class);
-	}
-
-	/**
 	 * Determines if a particular line in the Opennebula 2.x trace file is
 	 * representing a job
 	 * 
@@ -113,8 +101,10 @@ public class One2HistoryReader extends TraceFileReaderFoundation {
 		if (queueendtime == 0)
 			return null;
 		// TODO: check if nprocs, user, and exec can be filled out properly!
-		return jobCreator.newInstance(submittime, queueendtime - submittime,
+		return jobCreator.newInstance(null, submittime, queueendtime
+				- submittime,
 				execendtime == 0 ? (Long.MAX_VALUE - queueendtime)
-						: (execendtime - queueendtime), 1, "USER", "EXEC");
+						: (execendtime - queueendtime), 1, -1, -1, "USER",
+				"GROUP", "EXEC", null, 0);
 	}
 }

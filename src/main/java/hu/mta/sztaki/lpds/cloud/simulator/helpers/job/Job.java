@@ -36,7 +36,7 @@ public abstract class Job {
 	/**
 	 * The internal identifier of the job
 	 */
-	private int id;
+	private String id;
 	/**
 	 * The time the job was submitted to its original infrastructure.
 	 */
@@ -68,9 +68,22 @@ public abstract class Job {
 	 */
 	public final int nprocs;
 	/**
+	 * Average time/proc used by the job
+	 */
+	public final double perProcCPUTime;
+	/**
+	 * in kB/proc
+	 */
+	public final long usedMemory;
+	/**
 	 * The user executing this particular job.
 	 */
 	public final String user;
+	/**
+	 * Some systems control resource usage by groups rather than by individual
+	 * users.
+	 */
+	public final String group;
 	/**
 	 * The executable ran on the target infrastructure by the job. By checking
 	 * this field one can determine what kind of virtual machine image is needed
@@ -79,6 +92,15 @@ public abstract class Job {
 	 * behavior of such executables.
 	 */
 	public final String executable;
+	/**
+	 * the current job can only start after the termination of this job.
+	 */
+	public final Job preceding;
+	/**
+	 * number of seconds between the submission of this job and the preceding
+	 * one.
+	 */
+	public final long thinkTimeAfterPreceeding;
 
 	/**
 	 * The time it took to queue the job on the simulated infrastructure.
@@ -97,76 +119,15 @@ public abstract class Job {
 	private boolean ran = false;
 
 	/**
-	 * Allows the creation of a job object using the GWA trace line format.
-	 * 
-	 * Supports GWA traces with millisecond time base (useful to load traces
-	 * produced by the ASKALON workflow environment of University of Innsbruck).
-	 * 
-	 * @param jobstring
-	 *            the job specification using the GWA trace line format.
-	 */
-	public Job(String jobstring) {
-		boolean askalon = jobstring.endsWith("ASKALON");
-		final int maxLen = 14;
-		char[] str = jobstring.toCharArray();
-		StringBuffer[] elements = new StringBuffer[maxLen];
-		int j = 0;
-		for (j = 0; j < maxLen; j++) {
-			elements[j] = new StringBuffer(12);
-		}
-		boolean wrt = false;
-		j = 0;
-		for (int i = 0; i < str.length; i++) {
-			if (str[i] == ' ' || str[i] == '\t') {
-				if (!wrt) {
-					continue;
-				} else {
-					j++;
-					if (j == maxLen) {
-						break;
-					}
-					wrt = false;
-				}
-			} else {
-				wrt = true;
-				elements[j].append(str[i]);
-			}
-		}
-		// Simple but significantly slower (3x)
-		// String[] elements = jobstring.split("\\s+");
-		id = Integer.parseInt(elements[0].toString());
-		submittimeSecs = Long.parseLong(askalon ? elements[1].substring(0,
-				elements[1].length() - 3) : elements[1].toString());
-		queuetimeSecs = Math.max(0, Long.parseLong(elements[2].toString()));
-		exectimeSecs = Math.max(0, Long.parseLong(elements[3].toString()));
-		nprocs = Math.max(1, Integer.parseInt(elements[4].toString()));
-		user = parseTextualField(elements[11].toString());
-		executable = parseTextualField(elements[13].toString());
-		stoptimeSecs = queuetimeSecs + exectimeSecs + submittimeSecs;
-		starttimeSecs = submittimeSecs + queuetimeSecs;
-		midExecInstanceSecs = starttimeSecs + exectimeSecs / 2;
-	}
-
-	/**
-	 * Checks if the particular GWA line entry contains useful data.
-	 * 
-	 * @param unparsed
-	 *            the text to be checked for usefulness.
-	 * @return the text altered after usefulness checking. If the text is not
-	 *         useful then the string "N/A" is returned.
-	 */
-	private String parseTextualField(final String unparsed) {
-		return unparsed.equals("-1") ? "N/A" : unparsed;
-		// unparsed.matches("^-?[0-9](?:\\.[0-9])?$")?"N/A":unparsed;
-	}
-
-	/**
 	 * The generic constructor to be used by most of the trace generators and in
 	 * most of the use cases.
 	 * 
 	 * Please note the id of the job is automatically generated with this
 	 * constructor.
 	 * 
+	 * @param id
+	 *            the id of the job, if it is null, then the id will be
+	 *            internally assigned.
 	 * @param submit
 	 *            the time instance (in secs) the job is submitted
 	 * @param queue
@@ -182,9 +143,10 @@ public abstract class Job {
 	 * @param executable
 	 *            the kind of executable ran by the job
 	 */
-	public Job(long submit, long queue, long exec, int nprocs, String user,
-			String executable) {
-		this.id = this.hashCode();
+	public Job(String id, long submit, long queue, long exec, int nprocs,
+			double ppCpu, long ppMem, String user, String group,
+			String executable, Job preceding, long delayAfter) {
+		this.id = id == null ? "" + this.hashCode() : id;
 		submittimeSecs = submit;
 		queuetimeSecs = queue;
 		exectimeSecs = exec;
@@ -192,8 +154,15 @@ public abstract class Job {
 		starttimeSecs = submittimeSecs + queuetimeSecs;
 		midExecInstanceSecs = starttimeSecs + exectimeSecs / 2;
 		this.nprocs = nprocs;
+		// Assumes full CPU utilization for every processor for the complete
+		// runtime of the job
+		this.perProcCPUTime = ppCpu < 0 ? exec : ppCpu;
+		this.usedMemory = ppMem;
 		this.user = user;
+		this.group = group;
 		this.executable = executable;
+		this.preceding = preceding;
+		this.thinkTimeAfterPreceeding = delayAfter;
 	}
 
 	/**
@@ -201,7 +170,7 @@ public abstract class Job {
 	 * 
 	 * @return the id of the job.
 	 */
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 

@@ -117,7 +117,9 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			Class<? extends Job> jobType) throws SecurityException,
 			NoSuchMethodException {
 		this.traceKind = traceKind;
-		jobCreator = getCreator(jobType);
+		jobCreator = jobType.getConstructor(String.class, long.class,
+				long.class, int.class, double.class, long.class, String.class,
+				String.class, String.class, Job.class, long.class);
 		toBeRead = new File(fileName);
 		this.from = from;
 		this.to = to;
@@ -266,25 +268,4 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 	protected abstract Job createJobFromLine(final String line)
 			throws IllegalArgumentException, InstantiationException,
 			IllegalAccessException, InvocationTargetException;
-
-	/**
-	 * Determines with which constructor should one create a job instance out of
-	 * the trace-lines in the particular implementation of this abstract class.
-	 * 
-	 * @param jobType
-	 *            The class reference of the Job's type to be instantiated when
-	 *            a particular trace line is processed.
-	 * @return a constructor object pointing to the necessary constructor that
-	 *         will lead to the suitable instantiation technique for a
-	 *         particular implementation.
-	 * @throws SecurityException
-	 *             problem with finding the apropriate contructor with the
-	 *             current classloader.
-	 * @throws NoSuchMethodException
-	 *             no such constructor exists in the job implementation that is
-	 *             required for the particular trace loader.
-	 */
-	protected abstract Constructor<? extends Job> getCreator(
-			Class<? extends Job> jobType) throws SecurityException,
-			NoSuchMethodException;
 }
