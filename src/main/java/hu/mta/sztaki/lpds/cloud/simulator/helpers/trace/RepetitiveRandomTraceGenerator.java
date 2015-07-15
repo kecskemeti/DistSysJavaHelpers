@@ -362,8 +362,11 @@ public class RepetitiveRandomTraceGenerator implements GenericTraceProducer {
 	 */
 	public RepetitiveRandomTraceGenerator(Class<? extends Job> jobType)
 			throws SecurityException, NoSuchMethodException {
-		jobCreator = jobType.getConstructor(long.class, long.class, long.class,
-				int.class, String.class, String.class);
+		jobCreator = jobType
+				.getConstructor(String.class, long.class, long.class,
+						long.class, int.class, double.class, long.class,
+						String.class, String.class, String.class, Job.class,
+						long.class);
 	}
 
 	/**

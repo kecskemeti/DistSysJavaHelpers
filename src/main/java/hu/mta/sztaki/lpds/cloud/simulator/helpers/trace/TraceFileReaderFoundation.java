@@ -117,9 +117,11 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			Class<? extends Job> jobType) throws SecurityException,
 			NoSuchMethodException {
 		this.traceKind = traceKind;
-		jobCreator = jobType.getConstructor(String.class, long.class,
-				long.class, int.class, double.class, long.class, String.class,
-				String.class, String.class, Job.class, long.class);
+		jobCreator = jobType
+				.getConstructor(String.class, long.class, long.class,
+						long.class, int.class, double.class, long.class,
+						String.class, String.class, String.class, Job.class,
+						long.class);
 		toBeRead = new File(fileName);
 		this.from = from;
 		this.to = to;
@@ -144,6 +146,7 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			currentlyOffered = new ArrayList<Job>();
 			if (actualReader == null) {
 				actualReader = new BufferedReader(new FileReader(toBeRead));
+				lineIdx = 0;
 			}
 
 			String line = null;
@@ -176,7 +179,7 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			System.err.println(traceKind + " trace file reader stops for: "
 					+ toBeRead + " at " + Calendar.getInstance().getTime());
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Error in line: " + lineIdx, e);
 		}
 	}
 

@@ -86,9 +86,8 @@ public class GWFReader extends TraceFileReaderFoundation {
 	 * 
 	 * Supports GWA traces with millisecond time base (useful to load traces
 	 * produced by the ASKALON workflow environment of University of Innsbruck).
-	 * 
-	 * Uses the Job classes textual - Job(String) - constructor! This is ensured
-	 * in the getCreator function as well.
+	 *
+	 * Not the entire GWF trace format is supported. 
 	 */
 	@Override
 	public Job createJobFromLine(String jobstring)
@@ -122,7 +121,7 @@ public class GWFReader extends TraceFileReaderFoundation {
 		// String[] elements = jobstring.split("\\s+");
 
 		return jobCreator.newInstance(
-				// id
+		// id
 				elements[0].toString(),
 				// submit time:
 				Long.parseLong(askalon ? elements[1].substring(0,
@@ -134,9 +133,9 @@ public class GWFReader extends TraceFileReaderFoundation {
 				// Number of processors
 				Math.max(1, Integer.parseInt(elements[4].toString())),
 				// average execution time
-				Long.parseLong(elements[5].toString()),
+				(long) Double.parseDouble(elements[5].toString()),
 				// no memory
-				Long.parseLong(elements[6].toString()),
+				(long) Double.parseDouble(elements[6].toString()),
 				// User name:
 				parseTextualField(elements[11].toString()),
 				// Group membership:
