@@ -150,8 +150,8 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 
 			// Skip first lines until from
 			if (lineIdx < from) {
-				while ((line = actualReader.readLine()) != null
-						&& lineIdx < from) {
+				while (lineIdx < from
+						&& (line = actualReader.readLine()) != null) {
 					if (isTraceLine(line)) {
 						lineIdx++;
 					}
@@ -159,7 +159,7 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			}
 
 			// Actual reading of the lines
-			while ((line = actualReader.readLine()) != null && count > 0) {
+			do {
 				if (isTraceLine(line)) {
 					count--;
 					lineIdx++;
@@ -168,7 +168,7 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 						continue;
 					currentlyOffered.add(toAdd);
 				}
-			}
+			} while (count > 0 && (line = actualReader.readLine()) != null);
 			if (line == null) {
 				actualReader.close();
 				lineIdx = -1; // marks the end of the file
