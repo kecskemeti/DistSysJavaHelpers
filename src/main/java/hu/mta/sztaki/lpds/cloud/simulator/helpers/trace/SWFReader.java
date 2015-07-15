@@ -32,7 +32,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 	public SWFReader(String fileName, int from, int to,
 			boolean allowReadingFurther, Class<? extends Job> jobType)
 			throws SecurityException, NoSuchMethodException {
-		super("SWF", fileName, from, to, allowReadingFurther, jobType);
+		super("Standard workload format", fileName, from, to, allowReadingFurther, jobType);
 	}
 
 	@Override
