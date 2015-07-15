@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>hu.mta.sztaki.lpds.cloud.simulator</groupId>
 	<artifactId>DistSysJavaHelpers</artifactId>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<name>DistSysJavaHelpers</name>
 	<description>Helper classes to support simulations of large scale distributed systems</description>
 	<dependencies>
