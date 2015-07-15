@@ -25,7 +25,6 @@ package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -70,16 +69,6 @@ public class GWFReader extends TraceFileReaderFoundation {
 	}
 
 	/**
-	 * Ensures the use of the textual constructor (of the Job class) with the
-	 * "jobCreator".
-	 */
-	@Override
-	protected Constructor<? extends Job> getCreator(Class<? extends Job> jobType)
-			throws SecurityException, NoSuchMethodException {
-		return jobType.getConstructor(String.class);
-	}
-
-	/**
 	 * Determines if a particular line in the GWF file is representing a job
 	 * 
 	 * Actually ignores empty lines and lines starting with '#'
@@ -102,9 +91,9 @@ public class GWFReader extends TraceFileReaderFoundation {
 	 * in the getCreator function as well.
 	 */
 	@Override
-	public Job createJobFromLine(String jobstring) throws IllegalArgumentException,
-			InstantiationException, IllegalAccessException,
-			InvocationTargetException {
+	public Job createJobFromLine(String jobstring)
+			throws IllegalArgumentException, InstantiationException,
+			IllegalAccessException, InvocationTargetException {
 		boolean askalon = jobstring.endsWith("ASKALON");
 		final int maxLen = 14;
 		char[] str = jobstring.toCharArray();
@@ -117,9 +106,7 @@ public class GWFReader extends TraceFileReaderFoundation {
 		j = 0;
 		for (int i = 0; i < str.length; i++) {
 			if (str[i] == ' ' || str[i] == '\t') {
-				if (!wrt) {
-					continue;
-				} else {
+				if (wrt) {
 					j++;
 					if (j == maxLen) {
 						break;
@@ -133,20 +120,31 @@ public class GWFReader extends TraceFileReaderFoundation {
 		}
 		// Simple but significantly slower (3x)
 		// String[] elements = jobstring.split("\\s+");
-		id = Integer.parseInt(elements[0].toString());
-		submittimeSecs = Long.parseLong(askalon ? elements[1].substring(0,
-				elements[1].length() - 3) : elements[1].toString());
-		queuetimeSecs = Math.max(0, Long.parseLong(elements[2].toString()));
-		exectimeSecs = Math.max(0, Long.parseLong(elements[3].toString()));
-		nprocs = Math.max(1, Integer.parseInt(elements[4].toString()));
-		user = parseTextualField(elements[11].toString());
-		executable = parseTextualField(elements[13].toString());
-		stoptimeSecs = queuetimeSecs + exectimeSecs + submittimeSecs;
-		starttimeSecs = submittimeSecs + queuetimeSecs;
-		midExecInstanceSecs = starttimeSecs + exectimeSecs / 2;
-		preceeding = null;
-		thinkTimeAfterPreceeding = 0;
-		return jobCreator.newInstance(line);
+
+		return jobCreator.newInstance(
+				// id
+				elements[0].toString(),
+				// submit time:
+				Long.parseLong(askalon ? elements[1].substring(0,
+						elements[1].length() - 3) : elements[1].toString()),
+				// queueing time:
+				Math.max(0, Long.parseLong(elements[2].toString())),
+				// execution time:
+				Math.max(0, Long.parseLong(elements[3].toString())),
+				// Number of processors
+				Math.max(1, Integer.parseInt(elements[4].toString())),
+				// average execution time
+				Long.parseLong(elements[5].toString()),
+				// no memory
+				Long.parseLong(elements[6].toString()),
+				// User name:
+				parseTextualField(elements[11].toString()),
+				// Group membership:
+				parseTextualField(elements[12].toString()),
+				// executable name:
+				parseTextualField(elements[13].toString()),
+				// No preceding job
+				null, 0);
 	}
 
 	/**
