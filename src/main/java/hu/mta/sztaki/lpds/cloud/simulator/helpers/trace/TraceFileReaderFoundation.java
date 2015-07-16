@@ -53,7 +53,8 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 	 */
 	private final String traceKind;
 	/**
-	 * Job entry range on which this reader operates
+	 * Job entry range on which this reader operates. From can start at 0. The
+	 * "to"th job will not be included in the returned trace.
 	 */
 	private final int from, to;
 	/**
@@ -91,13 +92,13 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 	 *            reading cycle the name of the trace file parser is reported on
 	 *            the standard error.
 	 * @param fileName
-	 *            The full path to the gwf file that should act as the source of
-	 *            the jobs produced by this trace producer.
+	 *            The full path to the file that should act as the source of the
+	 *            jobs produced by this trace producer.
 	 * @param fromThe
-	 *            first job in the gwf file that should be produced in the job
-	 *            listing output.
+	 *            first job in the file that should be produced in the job
+	 *            listing output. (please note the counter starts at 0)
 	 * @param to
-	 *            The last job in the gwf file that should be still in the job
+	 *            The last job in the file that should be still in the job
 	 *            listing output.
 	 * @param allowReadingFurther
 	 *            If true the previously listed "to" parameter is ignored if the
@@ -146,18 +147,14 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			currentlyOffered = new ArrayList<Job>();
 			if (actualReader == null) {
 				actualReader = new BufferedReader(new FileReader(toBeRead));
-				lineIdx = 0;
 			}
 
 			String line = null;
 
 			// Skip first lines until from
-			if (lineIdx < from) {
-				while (lineIdx < from
-						&& (line = actualReader.readLine()) != null) {
-					if (isTraceLine(line)) {
-						lineIdx++;
-					}
+			while (lineIdx < from && (line = actualReader.readLine()) != null) {
+				if (isTraceLine(line)) {
+					lineIdx++;
 				}
 			}
 
