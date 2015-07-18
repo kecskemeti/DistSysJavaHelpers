@@ -32,7 +32,8 @@ public class SWFReader extends TraceFileReaderFoundation {
 	public SWFReader(String fileName, int from, int to,
 			boolean allowReadingFurther, Class<? extends Job> jobType)
 			throws SecurityException, NoSuchMethodException {
-		super("Standard workload format", fileName, from, to, allowReadingFurther, jobType);
+		super("Standard workload format", fileName, from, to,
+				allowReadingFurther, jobType);
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 	protected Job createJobFromLine(String line)
 			throws IllegalArgumentException, InstantiationException,
 			IllegalAccessException, InvocationTargetException {
-		final String[] fragments = line.split("\\s+");
+		final String[] fragments = line.trim().split("\\s+");
 		/**
 		 * String id, long submit, long queue, long exec, int nprocs, double
 		 * ppCpu, long ppMem, String user, String group, String executable, Job
