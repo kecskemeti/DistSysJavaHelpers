@@ -415,8 +415,9 @@ public class RepetitiveRandomTraceGenerator implements GenericTraceProducer {
 					final long exectime = execmin
 							+ (execspace == 0 ? 0 : r.nextInt(execspace));
 					usedProcs += nprocs;
-					currentlyGenerated.add(jobCreator.newInstance(submittime,
-							0, exectime, nprocs, "", ""));
+					currentlyGenerated.add(jobCreator.newInstance(null,
+							submittime, 0, exectime, nprocs, -1, -1, "", "",
+							"", null, 0));
 					currentMaxTime = Math.max(currentMaxTime, submittime
 							+ exectime);
 				}
