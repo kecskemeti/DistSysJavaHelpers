@@ -86,4 +86,16 @@ public class JobListAnalyser {
 		}
 	};
 
+
+	/**
+	 * A job comparator that allows the ordering of jobs based on their
+	 * termination time instance.
+	 */
+	public static final Comparator<Job> startTimeComparator = new Comparator<Job>() {
+		@Override
+		public int compare(Job o1, Job o2) {
+			return Long.signum(o1.getStartTimeInstance() - o2.getStartTimeInstance());
+		}
+	};
+
 }
