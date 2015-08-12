@@ -29,8 +29,7 @@ package hu.mta.sztaki.lpds.cloud.simulator.helpers.job;
  * class comes rather handy when handling execution traces of real life
  * infrastructures in simulated systems.
  * 
- * @author 
- *         "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012"
  */
 public abstract class Job {
 	/**
@@ -143,9 +142,8 @@ public abstract class Job {
 	 * @param executable
 	 *            the kind of executable ran by the job
 	 */
-	public Job(String id, long submit, long queue, long exec, int nprocs,
-			double ppCpu, long ppMem, String user, String group,
-			String executable, Job preceding, long delayAfter) {
+	public Job(String id, long submit, long queue, long exec, int nprocs, double ppCpu, long ppMem, String user,
+			String group, String executable, Job preceding, long delayAfter) {
 		this.id = id == null ? "" + this.hashCode() : id;
 		submittimeSecs = submit;
 		queuetimeSecs = queue;
@@ -180,7 +178,7 @@ public abstract class Job {
 	 */
 	@Override
 	public String toString() {
-		return "Job: " + id + " Start Time: " + submittimeSecs + " Stop Time: "
+		return "Job: " + id + " Submit Time: " + submittimeSecs + " Start Time: " + starttimeSecs + " Stop Time: "
 				+ stoptimeSecs + " Procs: " + nprocs;
 	}
 
@@ -329,8 +327,7 @@ public abstract class Job {
 			starttimeSecs += offsetSecs;
 			stoptimeSecs += offsetSecs;
 		} else {
-			throw new IllegalStateException(
-					"Cannot adjust job if it has been ran already!");
+			throw new IllegalStateException("Cannot adjust job if it has been ran already!");
 		}
 	}
 

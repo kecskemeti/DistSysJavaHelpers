@@ -27,13 +27,17 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * An implementation of the generic trace file reader functionality to support
+ * files from the standard workloads archive (http://gwa.ewi.tudelft.nl/).
+ * 
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
+ */
 public class SWFReader extends TraceFileReaderFoundation {
 
-	public SWFReader(String fileName, int from, int to,
-			boolean allowReadingFurther, Class<? extends Job> jobType)
+	public SWFReader(String fileName, int from, int to, boolean allowReadingFurther, Class<? extends Job> jobType)
 			throws SecurityException, NoSuchMethodException {
-		super("Standard workload format", fileName, from, to,
-				allowReadingFurther, jobType);
+		super("Standard workload format", fileName, from, to, allowReadingFurther, jobType);
 	}
 
 	@Override
@@ -43,8 +47,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 
 	@Override
 	protected Job createJobFromLine(String line)
-			throws IllegalArgumentException, InstantiationException,
-			IllegalAccessException, InvocationTargetException {
+			throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		final String[] fragments = line.trim().split("\\s+");
 		/**
 		 * String id, long submit, long queue, long exec, int nprocs, double
@@ -52,7 +55,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 		 * preceding, long delayAfter
 		 */
 		return jobCreator.newInstance(
-		// id:
+				// id:
 				fragments[0],
 				// submit time in secs:
 				Long.parseLong(fragments[1]),
