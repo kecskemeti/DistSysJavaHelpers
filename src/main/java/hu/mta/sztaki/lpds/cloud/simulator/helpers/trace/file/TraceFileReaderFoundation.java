@@ -21,18 +21,18 @@
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
-package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
-
-import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
+package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.file;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceProducerFoundation;
 
 /**
  * A simple but generic line based trace file reader.
@@ -41,12 +41,7 @@ import java.util.List;
  *         "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012-5"
  * 
  */
-public abstract class TraceFileReaderFoundation implements GenericTraceProducer {
-	/**
-	 * The constuctor used for creating the job objects after a relevant line
-	 * was read.
-	 */
-	protected final Constructor<? extends Job> jobCreator;
+public abstract class TraceFileReaderFoundation extends TraceProducerFoundation {
 	/**
 	 * A marker for the log files so one can see which kind of trace was read by
 	 * the reader foundation.
@@ -117,12 +112,8 @@ public abstract class TraceFileReaderFoundation implements GenericTraceProducer 
 			int from, int to, boolean allowReadingFurther,
 			Class<? extends Job> jobType) throws SecurityException,
 			NoSuchMethodException {
+		super(jobType);
 		this.traceKind = traceKind;
-		jobCreator = jobType
-				.getConstructor(String.class, long.class, long.class,
-						long.class, int.class, double.class, long.class,
-						String.class, String.class, String.class, Job.class,
-						long.class);
 		toBeRead = new File(fileName);
 		this.from = from;
 		this.to = to;

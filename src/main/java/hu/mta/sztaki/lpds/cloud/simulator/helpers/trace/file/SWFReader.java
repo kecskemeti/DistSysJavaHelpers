@@ -21,7 +21,7 @@
  *  (C) Copyright 2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
-package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
+package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.file;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 

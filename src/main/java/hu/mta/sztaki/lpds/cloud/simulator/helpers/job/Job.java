@@ -331,4 +331,20 @@ public abstract class Job {
 		}
 	}
 
+	/**
+	 * Determines if there is any overlapping runtime section between this job
+	 * and another one.
+	 * 
+	 * @param other
+	 *            the job to check the overlapping with
+	 * @return
+	 * 		<ul>
+	 *         <li><i>true</i> if the jobs have a some overlapping sections</li>
+	 *         <li><i>false</i> otherwise</li>
+	 *         </ul>
+	 */
+	public boolean isOverlapping(final Job other) {
+		return this.starttimeSecs <= other.starttimeSecs ? this.stoptimeSecs > other.starttimeSecs
+				: other.stoptimeSecs > this.starttimeSecs;
+	}
 }
