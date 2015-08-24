@@ -66,7 +66,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 				// allocated processors:
 				Integer.parseInt(fragments[4]),
 				// average cpu time:
-				Long.parseLong(fragments[5]),
+				(long)Double.parseDouble(fragments[5]),
 				// average memory:
 				Long.parseLong(fragments[6]),
 				// userid:
