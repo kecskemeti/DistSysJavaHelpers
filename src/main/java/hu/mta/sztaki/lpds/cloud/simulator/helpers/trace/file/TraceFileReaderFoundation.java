@@ -37,8 +37,7 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceProducerFoundation;
 /**
  * A simple but generic line based trace file reader.
  * 
- * @author 
- *         "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012-5"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012-5"
  * 
  */
 public abstract class TraceFileReaderFoundation extends TraceProducerFoundation {
@@ -108,10 +107,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 *             If the class of the jobType does not hold one of the expected
 	 *             constructors.
 	 */
-	protected TraceFileReaderFoundation(String traceKind, String fileName,
-			int from, int to, boolean allowReadingFurther,
-			Class<? extends Job> jobType) throws SecurityException,
-			NoSuchMethodException {
+	protected TraceFileReaderFoundation(String traceKind, String fileName, int from, int to,
+			boolean allowReadingFurther, Class<? extends Job> jobType) throws SecurityException, NoSuchMethodException {
 		super(jobType);
 		this.traceKind = traceKind;
 		toBeRead = new File(fileName);
@@ -130,11 +127,10 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	private void readTrace(int count) {
 		try {
 			if (!furtherReadable && lineIdx >= to) {
-				throw new Exception(
-						"Was set to stop after reaching the 'to' item");
+				throw new Exception("Was set to stop after reaching the 'to' item");
 			}
-			System.err.println(traceKind + " trace file reader starts for: "
-					+ toBeRead + " at " + Calendar.getInstance().getTime());
+			System.err.println(traceKind + " trace file reader starts for: " + toBeRead + " at "
+					+ Calendar.getInstance().getTime());
 			currentlyOffered = new ArrayList<Job>();
 			if (actualReader == null) {
 				actualReader = new BufferedReader(new FileReader(toBeRead));
@@ -164,8 +160,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 				actualReader.close();
 				lineIdx = -1; // marks the end of the file
 			}
-			System.err.println(traceKind + " trace file reader stops for: "
-					+ toBeRead + " at " + Calendar.getInstance().getTime());
+			System.err.println(traceKind + " trace file reader stops for: " + toBeRead + " at "
+					+ Calendar.getInstance().getTime());
 		} catch (Exception e) {
 			throw new RuntimeException("Error in line: " + lineIdx, e);
 		}
@@ -203,8 +199,7 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	@Override
 	public List<Job> getJobs(int num) throws NoFurtherJobsException {
 		if (actualReader != null && lineIdx == -1) {
-			throw new NoFurtherJobsException("Run out of jobs in traceFile: "
-					+ toBeRead);
+			throw new NoFurtherJobsException("Run out of jobs in traceFile: " + toBeRead, null);
 		}
 		readTrace(num);
 		return currentlyOffered;
@@ -224,8 +219,7 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 *            the line to be analysed
 	 * @return true if "actualLine" is representing a job in the tracefile.
 	 */
-	public static boolean basicTraceLineDetector(final String commentIndicator,
-			final String actualLine) {
+	public static boolean basicTraceLineDetector(final String commentIndicator, final String actualLine) {
 		final String linetri = actualLine.trim();
 		return !(linetri.startsWith(commentIndicator) || linetri.isEmpty());
 	}
@@ -257,6 +251,5 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 *             error using the constructor of the job object
 	 */
 	protected abstract Job createJobFromLine(final String line)
-			throws IllegalArgumentException, InstantiationException,
-			IllegalAccessException, InvocationTargetException;
+			throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException;
 }

@@ -82,12 +82,12 @@ public class TraceFilter implements GenericTraceProducer {
 	}
 
 	@Override
-	public List<Job> getAllJobs() {
+	public List<Job> getAllJobs() throws TraceManagementException {
 		return filterJobSet(masterTrace.getAllJobs());
 	}
 
 	@Override
-	public List<Job> getJobs(int num) throws NoFurtherJobsException {
+	public List<Job> getJobs(int num) throws TraceManagementException {
 		return filterJobSet(masterTrace.getJobs(num));
 	}
 }

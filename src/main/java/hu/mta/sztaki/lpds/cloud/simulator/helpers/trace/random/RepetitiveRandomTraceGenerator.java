@@ -24,10 +24,10 @@
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.random;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceManagementException;
 
 /**
  * A trace producer that generates a trace on the fly with random data. The
@@ -73,7 +73,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setParallel(int parallel) {
 		this.parallel = parallel;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -97,7 +101,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setMaxStartSpread(int maxStartSpread) {
 		this.maxStartSpread = maxStartSpread;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -119,7 +127,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setExecmin(int execmin) {
 		this.execmin = execmin;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -141,7 +153,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setExecmax(int execmax) {
 		this.execmax = execmax;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -169,7 +185,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setMingap(int mingap) {
 		this.mingap = mingap;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -194,7 +214,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setMaxgap(int maxgap) {
 		this.maxgap = maxgap;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -219,7 +243,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setMinNodeProcs(int minNodeProcs) {
 		this.minNodeProcs = minNodeProcs;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -242,7 +270,11 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	public void setMaxNodeprocs(int maxNodeprocs) {
 		this.maxNodeprocs = maxNodeprocs;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// ignore.
+		}
 	}
 
 	/**
@@ -280,10 +312,10 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 	 */
 	protected List<Job> generateJobs() {
 		try {
-			System.err.println("Trace Generator starts with parameters (JN: " + getJobNum() + ", parallel: " + parallel
-					+ ", startSpr: " + maxStartSpread + ", exec: " + execmin + "-" + execmax + ", gap: " + mingap + "-"
-					+ maxgap + ", nodeprocs: " + minNodeProcs + "-" + maxNodeprocs + ", totalProcs: "
-					+ getMaxTotalProcs() + ") at " + Calendar.getInstance().getTime());
+			System.err.println("Repetitive Random Trace Generator starts with parameters (JN: " + getJobNum()
+					+ ", parallel: " + parallel + ", startSpr: " + maxStartSpread + ", exec: " + execmin + "-" + execmax
+					+ ", gap: " + mingap + "-" + maxgap + ", nodeprocs: " + minNodeProcs + "-" + maxNodeprocs
+					+ ", totalProcs: " + getMaxTotalProcs() + ")");
 			final int execspace = execmax - execmin;
 			final int gapspace = maxgap - mingap;
 			final int nodeSpace = maxNodeprocs - minNodeProcs;
@@ -304,7 +336,6 @@ public class RepetitiveRandomTraceGenerator extends GenericRandomTraceGenerator 
 				}
 				submitStart = currentMaxTime + mingap + (gapspace == 0 ? 0 : r.nextInt(gapspace));
 			}
-			System.err.println("Trace Generator stops at " + Calendar.getInstance().getTime());
 			return generatedList;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

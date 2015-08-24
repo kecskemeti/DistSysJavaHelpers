@@ -33,8 +33,7 @@ import java.util.List;
  * fixed length or some arbitrary length derived from the particular
  * implementation's context).
  * 
- * @author 
- *         "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
  * 
  */
 public interface GenericTraceProducer {
@@ -45,7 +44,7 @@ public interface GenericTraceProducer {
 	 * @author Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
 	 * 
 	 */
-	public class NoFurtherJobsException extends Exception {
+	public class NoFurtherJobsException extends TraceManagementException {
 		private static final long serialVersionUID = 2345469377540263474L;
 
 		/**
@@ -56,8 +55,8 @@ public interface GenericTraceProducer {
 		 *            The textual description behind the unavailability of
 		 *            further jobs.
 		 */
-		public NoFurtherJobsException(String cause) {
-			super(cause);
+		public NoFurtherJobsException(String cause, Exception e) {
+			super(cause, e);
 		}
 	}
 
@@ -68,8 +67,9 @@ public interface GenericTraceProducer {
 	 * 
 	 * @return the list of jobs (the length of the job list will be arbitrary
 	 *         from the caller point of view)
+	 * @throws TraceManagementException
 	 */
-	public List<Job> getAllJobs();
+	public List<Job> getAllJobs() throws TraceManagementException;
 
 	/**
 	 * Allows the query of a specific number of jobs in a set.
@@ -86,5 +86,5 @@ public interface GenericTraceProducer {
 	 *             exception is only supposed to be thrown if the job list's
 	 *             length would be 0.
 	 */
-	public List<Job> getJobs(final int num) throws NoFurtherJobsException;
+	public List<Job> getJobs(final int num) throws TraceManagementException;
 }

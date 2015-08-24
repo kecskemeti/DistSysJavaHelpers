@@ -23,10 +23,12 @@
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.random;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceManagementException;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceProducerFoundation;
 
 /**
@@ -35,21 +37,6 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceProducerFoundation;
  * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
  */
 public abstract class GenericRandomTraceGenerator extends TraceProducerFoundation {
-
-	/**
-	 * To be thrown if an unforeseen error occured during the trace generation
-	 * process
-	 * 
-	 * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
-	 *
-	 */
-	public static class TraceGenerationException extends Exception {
-		private static final long serialVersionUID = -5384129045782253106L;
-
-		public TraceGenerationException(String message, Exception e) {
-			super(message, e);
-		}
-	}
 
 	/**
 	 * To influence the random behavior of this class one is allowed to replace
@@ -94,7 +81,11 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 */
 	public void setJobNum(int jobNum) {
 		this.jobNum = jobNum;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// Ignore.
+		}
 	}
 
 	/**
@@ -123,7 +114,11 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 */
 	public void setMaxTotalProcs(int maxTotalProcs) {
 		this.maxTotalProcs = maxTotalProcs;
-		regenJobs();
+		try {
+			regenJobs();
+		} catch (TraceManagementException e) {
+			// Ignore.
+		}
 	}
 
 	/**
@@ -131,16 +126,19 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 * list of jobs got obsolete. If they did then it asks for their
 	 * regeneration with the new trace characteristics.
 	 */
-	final protected void regenJobs() {
+	final protected void regenJobs() throws TraceManagementException {
 		if (isPrepared()) {
 			try {
 				if (jobIndex != 0) {
+					System.err.println("Random trace generation starts at " + Calendar.getInstance().getTime());
 					currentlyGenerated = generateJobs();
+					System.err.println("Random trace generation stops at " + Calendar.getInstance().getTime());
 					jobIndex = 0;
 				}
-			} catch (TraceGenerationException e) {
+			} catch (TraceManagementException e) {
 				jobIndex = -1;
 				currentlyGenerated = null;
+				throw e;
 			}
 		}
 	}
@@ -150,9 +148,10 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 * the caller. The generation is done with the generateJobs function.
 	 * 
 	 * @return a completely new trace with the length of jobNum.
+	 * @throws TraceManagementException
 	 */
 	@Override
-	public List<Job> getAllJobs() {
+	public List<Job> getAllJobs() throws TraceManagementException {
 		regenJobs();
 		if (currentlyGenerated != null) {
 			jobIndex = currentlyGenerated.size();
@@ -174,7 +173,7 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 * @return a trace list with the length of num
 	 */
 	@Override
-	public List<Job> getJobs(int num) {
+	public List<Job> getJobs(int num) throws TraceManagementException {
 		if (currentlyGenerated == null) {
 			regenJobs();
 			if (currentlyGenerated == null) {
@@ -230,11 +229,11 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 * function returns true.
 	 * 
 	 * @return the generated trace
-	 * @throws TraceGenerationException
+	 * @throws TraceManagementException
 	 *             if the trace cannot be generated because of some internal
 	 *             issue (most likely the use of reflection could be the issue
 	 *             inside the TraceProducerFoundation).
 	 */
-	abstract protected List<Job> generateJobs() throws TraceGenerationException;
+	abstract protected List<Job> generateJobs() throws TraceManagementException;
 
 }

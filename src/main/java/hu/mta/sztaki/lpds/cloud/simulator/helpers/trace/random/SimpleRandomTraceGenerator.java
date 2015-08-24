@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceManagementException;
 
 /**
  * 
@@ -41,14 +42,12 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
  *
  */
 public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
+
 	/**
-	 * The distribution function's limits
+	 * The generators that comply with the given distribution functions
 	 */
-	private final double[] myDistProbLimits;
-	/**
-	 * The ranges in the distribution function (matched with the above limits
-	 */
-	private final RangeSpecifier[] myDistParticipants;
+	private final DistributionSpecifier sizeDistribution, durationDistribution, distanceDistribution;
+
 	/**
 	 * The maximum distance between the start time of two jobs
 	 */
@@ -87,24 +86,24 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 	 * @throws SecurityException
 	 *             from TraceProducerFoundation
 	 */
-	public SimpleRandomTraceGenerator(final Class<? extends Job> jobType, final List<RangeSpecifier> distribution,
-			final int maxJobDistance, final long maxJobDuration) throws NoSuchMethodException, SecurityException {
+	public SimpleRandomTraceGenerator(final Class<? extends Job> jobType, DistributionSpecifier size,
+			DistributionSpecifier duration, final long maxJobDuration, DistributionSpecifier gap,
+			final int maxJobDistance) throws NoSuchMethodException, SecurityException {
 		super(jobType);
 		this.maxJobDistance = maxJobDistance;
 		this.maxJobDuration = maxJobDuration;
-		myDistProbLimits = new double[distribution.size()];
-		myDistParticipants = new RangeSpecifier[distribution.size()];
-		double sumofDist = 0;
-		int loc = 0;
-		for (RangeSpecifier r : distribution) {
-			sumofDist += r.probability;
-			myDistProbLimits[loc] = sumofDist;
-			myDistParticipants[loc++] = r;
+		if (!size.isFinalized()) {
+			size.finalizeDistribution();
 		}
-		if (sumofDist > 1 && sumofDist < 0.9999) {
-			throw new RuntimeException("Distribution is not complete");
+		if (!duration.isFinalized()) {
+			duration.finalizeDistribution();
 		}
-		myDistProbLimits[loc - 1] = 1;
+		if (!gap.isFinalized()) {
+			gap.finalizeDistribution();
+		}
+		sizeDistribution = size;
+		durationDistribution = duration;
+		distanceDistribution = gap;
 	}
 
 	/**
@@ -144,21 +143,16 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 	 * 
 	 */
 	@Override
-	protected List<Job> generateJobs() throws TraceGenerationException {
+	protected List<Job> generateJobs() throws TraceManagementException {
 		try {
+			System.err.println("Simple Random Trace Generator parameters: jobnum - " + getJobNum() + " totprocs - "
+					+ getMaxTotalProcs());
 			final int maxLen = getJobNum();
 			final ArrayList<Job> generatedList = new ArrayList<Job>(maxLen);
 			for (int i = 0; i < maxLen; i++) {
-				final double currentProb = r.nextDouble();
-				int presumedLoc;
-				for (presumedLoc = 0; myDistProbLimits[presumedLoc] < currentProb; presumedLoc++) {
-				}
-				final RangeSpecifier currentRangeData = myDistParticipants[presumedLoc];
-				final double currentRequestSize = currentRangeData.start
-						+ r.nextDouble() * (currentRangeData.end - currentRangeData.start);
-				final long duration = Math.abs(r.nextLong() % maxJobDuration);
-				currentSubmitTime += r.nextInt(maxJobDistance);
-				int procs = (int) (Math.ceil(currentRequestSize * getMaxTotalProcs()));
+				final long duration = (long) (durationDistribution.nextDouble() * maxJobDuration);
+				currentSubmitTime += (long) (distanceDistribution.nextDouble() * maxJobDistance);
+				int procs = (int) (Math.ceil(sizeDistribution.nextDouble() * getMaxTotalProcs()));
 				Job j = getJobInstance(duration, procs);
 				long maxCores;
 				do {
@@ -183,7 +177,7 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 			}
 			return generatedList;
 		} catch (Exception e) {
-			throw new TraceGenerationException("Could not generate jobs", e);
+			throw new TraceManagementException("Could not generate jobs", e);
 		}
 	}
 
@@ -201,7 +195,30 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 	 * The marker for a single entry in the distribution function for the number
 	 * of processors
 	 */
-	public static final String rangeMarker = "range=";
+	public static final String sizeDistMarker = "sizeDist=";
+	/**
+	 * The marker for a single entry in the pdistribution function for the
+	 * length of the tasks
+	 */
+	public static final String durDistMarker = "durDist=";
+	/**
+	 * The marker for a single entry in the distribution function for the gaps
+	 * between the tasks
+	 */
+	public static final String gapDistMarker = "gapDist=";
+
+	private static boolean parseandaddDistLine(String definition, String[] preTexts,
+			DistributionSpecifier[] wheretoAdd) {
+		for (int i = 0; i < preTexts.length; i++) {
+			if (definition.startsWith(preTexts[i])) {
+				String[] rangeDefinition = definition.substring(preTexts[i].length()).split(",");
+				wheretoAdd[i].addRange(Double.parseDouble(rangeDefinition[0]), Double.parseDouble(rangeDefinition[1]),
+						Double.parseDouble(rangeDefinition[2]));
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * An easy setup for the data required in the constructor
@@ -229,8 +246,12 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 	 */
 	public static SimpleRandomTraceGenerator getInstanceFromFile(final Class<? extends Job> jobType, String fileName)
 			throws IOException, NoSuchMethodException, SecurityException {
+		System.err.println("Random trace properties loaded from file: " + fileName);
 		final RandomAccessFile raf = new RandomAccessFile(fileName, "r");
-		final ArrayList<RangeSpecifier> ranges = new ArrayList<RangeSpecifier>();
+		final DistributionSpecifier d = new DistributionSpecifier(r), g = new DistributionSpecifier(r),
+				s = new DistributionSpecifier(r);
+		final String[] preTextList = new String[] { sizeDistMarker, durDistMarker, gapDistMarker };
+		final DistributionSpecifier[] distList = new DistributionSpecifier[] { s, d, g };
 		int maxJobDist = -1;
 		long maxJobDur = -1;
 
@@ -239,11 +260,8 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 		try {
 			// Parsing
 			while ((line = raf.readLine()) != null) {
-				if (line.startsWith(rangeMarker)) {
-					String[] rangeDefinition = line.substring(rangeMarker.length()).split(",");
-					ranges.add(new RangeSpecifier(Double.parseDouble(rangeDefinition[0]),
-							Double.parseDouble(rangeDefinition[1]), Double.parseDouble(rangeDefinition[2])));
-				} else if (line.startsWith(jobDistMarker)) {
+				lineCounter++;
+				if (!parseandaddDistLine(line, preTextList, distList) && line.startsWith(jobDistMarker)) {
 					maxJobDist = Integer.parseInt(line.substring(jobDistMarker.length()));
 				} else if (line.startsWith(jobDurMarker)) {
 					maxJobDur = Long.parseLong(line.substring(jobDurMarker.length()));
@@ -264,10 +282,13 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 		if (maxJobDur < 0) {
 			throw new RuntimeException("No " + jobDurMarker + " was specified");
 		}
-		if (ranges.size() == 0) {
-			throw new RuntimeException("No " + rangeMarker + " was specified");
+		for (int i = 0; i < preTextList.length; i++) {
+			try {
+				distList[i].finalizeDistribution();
+			} catch (RuntimeException e) {
+				throw new RuntimeException("No " + preTextList[i] + " was specified", e);
+			}
 		}
-
-		return new SimpleRandomTraceGenerator(jobType, ranges, maxJobDist, maxJobDur);
+		return new SimpleRandomTraceGenerator(jobType, s, d, maxJobDur, g, maxJobDist);
 	}
 }
