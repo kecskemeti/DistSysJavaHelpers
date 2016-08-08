@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -33,7 +34,10 @@ import java.util.List;
  * fixed length or some arbitrary length derived from the particular
  * implementation's context).
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2015"
  * 
  */
 public interface GenericTraceProducer {
@@ -87,4 +91,13 @@ public interface GenericTraceProducer {
 	 *             length would be 0.
 	 */
 	public List<Job> getJobs(final int num) throws TraceManagementException;
+
+	/**
+	 * Determines the processor count of the system this trace was generated
+	 * for.
+	 * 
+	 * @return the proc count if positive. if negative then this trace has
+	 *         unknown proc count.
+	 */
+	public long getMaxProcCount();
 }

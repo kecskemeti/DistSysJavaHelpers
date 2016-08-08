@@ -18,23 +18,29 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
+import java.io.File;
 import java.io.IOException;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.file.GWFReader;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.file.One2HistoryReader;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.file.SWFReader;
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.filters.Ignore;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.random.SimpleRandomTraceGenerator;
 
 /**
  * Allows easy setup of trace producers from files.
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2016"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2016"
  */
 public class FileBasedTraceProducerFactory {
 	/**
@@ -51,7 +57,9 @@ public class FileBasedTraceProducerFactory {
 	 *            <i>true</i> if it is allowed to look further in the trace
 	 * @param jobType
 	 *            the kind of jobs to instantiate
-	 * @return
+	 * @return The trace producer. <b>Warning:</b> If the trace producer kind
+	 *         could not be determined then the function returns with
+	 *         <i>null</i>.
 	 * @throws SecurityException
 	 *             if the jobType cannot be instantiated correctly
 	 * @throws NoSuchMethodException
@@ -61,17 +69,24 @@ public class FileBasedTraceProducerFactory {
 	 */
 	public static GenericTraceProducer getProducerFromFile(String fileName, int from, int to, boolean furtherjobs,
 			Class<? extends Job> jobType) throws SecurityException, NoSuchMethodException, IOException {
+		GenericTraceProducer producer = null;
 		if (fileName.endsWith(".gwf")) {
-			return new GWFReader(fileName, from, to, furtherjobs, jobType);
+			producer = new GWFReader(fileName, from, to, furtherjobs, jobType);
 		} else if (fileName.endsWith(".swf")) {
-			return new SWFReader(fileName, from, to, furtherjobs, jobType);
+			producer = new SWFReader(fileName, from, to, furtherjobs, jobType);
 		} else if (fileName.endsWith(".srtg")) {
-			SimpleRandomTraceGenerator srtg=SimpleRandomTraceGenerator.getInstanceFromFile(jobType, fileName);
-			srtg.setJobNum(to-from);
-			return srtg;
+			SimpleRandomTraceGenerator srtg = SimpleRandomTraceGenerator.getInstanceFromFile(jobType, fileName);
+			srtg.setJobNum(to - from);
+			producer = srtg;
 		} else if (fileName.endsWith(".one2")) {
-			return new One2HistoryReader(fileName, from, to, furtherjobs, jobType);
+			producer = new One2HistoryReader(fileName, from, to, furtherjobs, jobType);
+		} else {
+			return null;
 		}
-		return null;
+		File ignoreFile = new File(fileName + ".ign");
+		if (ignoreFile.exists()) {
+			producer = new TraceFilter(producer, new Ignore(ignoreFile));
+		}
+		return producer;
 	}
 }

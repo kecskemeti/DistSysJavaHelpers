@@ -21,9 +21,10 @@
  *  (C) Copyright 2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
-package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
+package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.filters;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceFilter;
 
 /**
  * A job acceptor that determines if a job is running at a given time
@@ -50,7 +51,7 @@ public class RunningAtaGivenTime implements TraceFilter.Acceptor {
 	 * This function checks if the job given as its parameter runs at the time
 	 * instance given in the constructor of this class
 	 * 
-	 * @return if a job supposed to run at a given time instance
+	 * @return <i>true</i> if a job supposed to run at a given time instance
 	 */
 	@Override
 	public boolean accept(Job j) {

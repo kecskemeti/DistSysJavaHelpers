@@ -79,6 +79,11 @@ public class One2HistoryReader extends TraceFileReaderFoundation {
 	public boolean isTraceLine(String line) {
 		return basicTraceLineDetector("#", line);
 	}
+	
+	@Override
+	protected void metaDataCollector(String line) {
+		// do nothing
+	}
 
 	/**
 	 * Parses a single line of the tracefile and instantiates a job object out

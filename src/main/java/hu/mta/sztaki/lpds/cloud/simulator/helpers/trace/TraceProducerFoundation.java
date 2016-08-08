@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -28,15 +29,19 @@ import java.lang.reflect.Constructor;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
 /**
- * Generic foundation for job trace producers. Any extension of this
- * abstract class should be able to provide a set of jobs at request (either with
- * fixed length or some arbitrary length derived from the particular
- * implementation's context).
+ * Generic foundation for job trace producers. Any extension of this abstract
+ * class should be able to provide a set of jobs at request (either with fixed
+ * length or some arbitrary length derived from the particular implementation's
+ * context).
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2015"
  * 
  */
 public abstract class TraceProducerFoundation implements GenericTraceProducer {
+	protected long maxProcCount = -1;
 	/**
 	 * The constructor of the Job implementation to be used during the
 	 * generation process.
@@ -61,5 +66,15 @@ public abstract class TraceProducerFoundation implements GenericTraceProducer {
 		jobCreator = jobType.getConstructor(String.class, long.class, long.class, long.class, int.class, double.class,
 				long.class, String.class, String.class, String.class, Job.class, long.class);
 
+	}
+
+	/**
+	 * By default, this function tells the system that the proc count is
+	 * unknown. Update the maxProcCount filed if you can determine the proc
+	 * count somehow.
+	 */
+	@Override
+	public long getMaxProcCount() {
+		return maxProcCount;
 	}
 }

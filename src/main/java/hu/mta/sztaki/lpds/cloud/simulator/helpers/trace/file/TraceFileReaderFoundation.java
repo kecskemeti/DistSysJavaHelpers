@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -37,7 +38,10 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceProducerFoundation;
 /**
  * A simple but generic line based trace file reader.
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012-5"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2012-5"
  * 
  */
 public abstract class TraceFileReaderFoundation extends TraceProducerFoundation {
@@ -142,6 +146,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 			while (lineIdx < from && (line = actualReader.readLine()) != null) {
 				if (isTraceLine(line)) {
 					lineIdx++;
+				} else {
+					metaDataCollector(line);
 				}
 			}
 
@@ -154,6 +160,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 					if (toAdd == null)
 						continue;
 					currentlyOffered.add(toAdd);
+				} else {
+					metaDataCollector(line);
 				}
 			} while (count > 0 && (line = actualReader.readLine()) != null);
 			if (line == null) {
@@ -225,6 +233,20 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	}
 
 	/**
+	 * Allows long numbers to be parsed even if they are presented in a more
+	 * human readable form (eg. with commas or dots)
+	 * 
+	 * @param suspectedLong
+	 *            the string that represents the number
+	 * @return the long in parsed form
+	 * @throws NumberFormatException
+	 *             if the long cannot be parsed
+	 */
+	public static long parseLongNumber(String suspectedLong) {
+		return Long.parseLong(suspectedLong.replaceAll(",", "").replaceAll("[.]", ""));
+	}
+
+	/**
 	 * Determines if "line" can be considered as something that can be used to
 	 * instantiate a job object.
 	 * 
@@ -233,6 +255,14 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 * @return true if "line" is a useful job descriptor.
 	 */
 	protected abstract boolean isTraceLine(final String line);
+
+	/**
+	 * Allows readers to collect metadata from non-trace lines
+	 * 
+	 * @param line
+	 *            the non-trace line in question
+	 */
+	protected abstract void metaDataCollector(final String line);
 
 	/**
 	 * Parses a single line of the trace and creates a Job object out of it.

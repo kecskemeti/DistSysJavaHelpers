@@ -90,4 +90,9 @@ public class TraceFilter implements GenericTraceProducer {
 	public List<Job> getJobs(int num) throws TraceManagementException {
 		return filterJobSet(masterTrace.getJobs(num));
 	}
+	
+	@Override
+	public long getMaxProcCount() {
+		return masterTrace.getMaxProcCount();
+	}
 }

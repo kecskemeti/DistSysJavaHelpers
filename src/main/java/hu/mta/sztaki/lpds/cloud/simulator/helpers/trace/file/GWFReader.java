@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -31,8 +32,10 @@ import java.lang.reflect.InvocationTargetException;
  * An implementation of the generic trace file reader functionality to support
  * files from the grid workloads archive (http://gwa.ewi.tudelft.nl/).
  * 
- * @author 
- *         "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012-2015"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2012-2015"
  */
 public class GWFReader extends TraceFileReaderFoundation {
 
@@ -62,8 +65,7 @@ public class GWFReader extends TraceFileReaderFoundation {
 	 *             If the class of the jobType does not hold one of the expected
 	 *             constructors.
 	 */
-	public GWFReader(String fileName, int from, int to,
-			boolean allowReadingFurther, Class<? extends Job> jobType)
+	public GWFReader(String fileName, int from, int to, boolean allowReadingFurther, Class<? extends Job> jobType)
 			throws SecurityException, NoSuchMethodException {
 		super("Grid workload format", fileName, from, to, allowReadingFurther, jobType);
 	}
@@ -79,6 +81,22 @@ public class GWFReader extends TraceFileReaderFoundation {
 	}
 
 	/**
+	 * Collects the total number of processors in the trace if specified in the
+	 * comments
+	 */
+	@Override
+	protected void metaDataCollector(String line) {
+		if (line.contains("Processors")) {
+			String[] splitLine = line.split("\\s");
+			try {
+				maxProcCount = parseLongNumber((splitLine[splitLine.length - 1]));
+			} catch (NumberFormatException e) {
+				// safe to ignore as there is no useful data here then
+			}
+		}
+	}
+
+	/**
 	 * Parses a single line of the tracefile and instantiates a job object out
 	 * of it.
 	 * 
@@ -87,12 +105,11 @@ public class GWFReader extends TraceFileReaderFoundation {
 	 * Supports GWA traces with millisecond time base (useful to load traces
 	 * produced by the ASKALON workflow environment of University of Innsbruck).
 	 *
-	 * Not the entire GWF trace format is supported. 
+	 * Not the entire GWF trace format is supported.
 	 */
 	@Override
 	public Job createJobFromLine(String jobstring)
-			throws IllegalArgumentException, InstantiationException,
-			IllegalAccessException, InvocationTargetException {
+			throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		boolean askalon = jobstring.endsWith("ASKALON");
 		final int maxLen = 14;
 		char[] str = jobstring.toCharArray();
@@ -121,11 +138,10 @@ public class GWFReader extends TraceFileReaderFoundation {
 		// String[] elements = jobstring.split("\\s+");
 
 		return jobCreator.newInstance(
-		// id
+				// id
 				elements[0].toString(),
 				// submit time:
-				Long.parseLong(askalon ? elements[1].substring(0,
-						elements[1].length() - 3) : elements[1].toString()),
+				Long.parseLong(askalon ? elements[1].substring(0, elements[1].length() - 3) : elements[1].toString()),
 				// queueing time:
 				Math.max(0, Long.parseLong(elements[2].toString())),
 				// execution time:

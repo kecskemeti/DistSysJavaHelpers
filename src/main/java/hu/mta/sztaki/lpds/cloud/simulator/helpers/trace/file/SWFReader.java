@@ -18,20 +18,24 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.file;
 
-import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
-
 import java.lang.reflect.InvocationTargetException;
+
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
 /**
  * An implementation of the generic trace file reader functionality to support
  * files from the standard workloads archive (http://gwa.ewi.tudelft.nl/).
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2015"
  */
 public class SWFReader extends TraceFileReaderFoundation {
 
@@ -40,9 +44,30 @@ public class SWFReader extends TraceFileReaderFoundation {
 		super("Standard workload format", fileName, from, to, allowReadingFurther, jobType);
 	}
 
+	/**
+	 * Determines if a particular line in the SWF file is representing a job
+	 * 
+	 * Actually ignores empty lines and lines starting with ';'
+	 */
 	@Override
 	protected boolean isTraceLine(String line) {
 		return basicTraceLineDetector(";", line);
+	}
+
+	/**
+	 * Collects the total number of processors in the trace if specified in the
+	 * comments
+	 */
+	@Override
+	protected void metaDataCollector(String line) {
+		if (line.contains("MaxProcs")) {
+			String[] splitLine = line.split("\\s");
+			try {
+				maxProcCount = parseLongNumber(splitLine[splitLine.length - 1].trim());
+			} catch (NumberFormatException e) {
+				// safe to ignore as there is no useful data here then
+			}
+		}
 	}
 
 	@Override
@@ -66,7 +91,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 				// allocated processors:
 				Integer.parseInt(fragments[4]),
 				// average cpu time:
-				(long)Double.parseDouble(fragments[5]),
+				(long) Double.parseDouble(fragments[5]),
 				// average memory:
 				Long.parseLong(fragments[6]),
 				// userid:
