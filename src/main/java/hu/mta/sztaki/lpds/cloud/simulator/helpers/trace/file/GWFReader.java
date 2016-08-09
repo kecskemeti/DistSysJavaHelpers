@@ -136,30 +136,38 @@ public class GWFReader extends TraceFileReaderFoundation {
 		}
 		// Simple but significantly slower (3x)
 		// String[] elements = jobstring.split("\\s+");
-
-		return jobCreator.newInstance(
-				// id
-				elements[0].toString(),
-				// submit time:
-				Long.parseLong(askalon ? elements[1].substring(0, elements[1].length() - 3) : elements[1].toString()),
-				// queueing time:
-				Math.max(0, Long.parseLong(elements[2].toString())),
-				// execution time:
-				Math.max(0, Long.parseLong(elements[3].toString())),
-				// Number of processors
-				Math.max(1, Integer.parseInt(elements[4].toString())),
-				// average execution time
-				(long) Double.parseDouble(elements[5].toString()),
-				// no memory
-				(long) Double.parseDouble(elements[6].toString()),
-				// User name:
-				parseTextualField(elements[11].toString()),
-				// Group membership:
-				parseTextualField(elements[12].toString()),
-				// executable name:
-				parseTextualField(elements[13].toString()),
-				// No preceding job
-				null, 0);
+		int jobState = Integer.parseInt(elements[10].toString());
+		int procs = Integer.parseInt(elements[4].toString());
+		long runtime = Long.parseLong(elements[3].toString());
+		long waitTime = Long.parseLong(elements[2].toString());
+		if (jobState != 1 && (procs < 1 || runtime < 0)) {
+			return null;
+		} else {
+			return jobCreator.newInstance(
+					// id
+					elements[0].toString(),
+					// submit time:
+					Long.parseLong(
+							askalon ? elements[1].substring(0, elements[1].length() - 3) : elements[1].toString()),
+					// queueing time:
+					Math.max(0, waitTime),
+					// execution time:
+					Math.max(0, runtime),
+					// Number of processors
+					Math.max(1, procs),
+					// average execution time
+					(long) Double.parseDouble(elements[5].toString()),
+					// no memory
+					(long) Double.parseDouble(elements[6].toString()),
+					// User name:
+					parseTextualField(elements[11].toString()),
+					// Group membership:
+					parseTextualField(elements[12].toString()),
+					// executable name:
+					parseTextualField(elements[13].toString()),
+					// No preceding job
+					null, 0);
+		}
 	}
 
 	/**

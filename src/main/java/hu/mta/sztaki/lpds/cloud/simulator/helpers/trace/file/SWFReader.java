@@ -79,29 +79,38 @@ public class SWFReader extends TraceFileReaderFoundation {
 		 * ppCpu, long ppMem, String user, String group, String executable, Job
 		 * preceding, long delayAfter
 		 */
-		return jobCreator.newInstance(
-				// id:
-				fragments[0],
-				// submit time in secs:
-				Long.parseLong(fragments[1]),
-				// wait time in secs:
-				Long.parseLong(fragments[2]),
-				// run time in secs:
-				Long.parseLong(fragments[3]),
-				// allocated processors:
-				Integer.parseInt(fragments[4]),
-				// average cpu time:
-				(long) Double.parseDouble(fragments[5]),
-				// average memory:
-				Long.parseLong(fragments[6]),
-				// userid:
-				fragments[11],
-				// groupid:
-				fragments[12],
-				// execid:
-				fragments[13],
-				// preceeding job - not supported yet
-				null, 0);
+		// 1 done, 0 fail, 5 cancel
+		int jobState = Integer.parseInt(fragments[10]);
+		int procs = Integer.parseInt(fragments[4]);
+		long runtime = Long.parseLong(fragments[3]);
+		long waitTime = Long.parseLong(fragments[2]);
+		if (jobState != 1 && (procs < 1 || runtime < 0)) {
+			return null;
+		} else {
+			return jobCreator.newInstance(
+					// id:
+					fragments[0],
+					// submit time in secs:
+					Long.parseLong(fragments[1]),
+					// wait time in secs:
+					Math.max(0, waitTime),
+					// run time in secs:
+					Math.max(0,runtime),
+					// allocated processors:
+					Math.max(1, procs),
+					// average cpu time:
+					(long) Double.parseDouble(fragments[5]),
+					// average memory:
+					Long.parseLong(fragments[6]),
+					// userid:
+					fragments[11],
+					// groupid:
+					fragments[12],
+					// execid:
+					fragments[13],
+					// preceeding job - not supported yet
+					null, 0);
+		}
 	}
 
 }
