@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import hu.mta.sztaki.lpds.cloud.simulator.helpers.Chartable;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceManagementException;
 
@@ -38,10 +40,13 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceManagementException
  * This is a simple probabilistic trace generator where the number of processors
  * for each job are generated with a distribution function.
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012-5"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2012-5"
  *
  */
-public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
+public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator implements Chartable {
 
 	/**
 	 * The generators that comply with the given distribution functions
@@ -290,5 +295,20 @@ public class SimpleRandomTraceGenerator extends GenericRandomTraceGenerator {
 			}
 		}
 		return new SimpleRandomTraceGenerator(jobType, s, d, maxJobDur, g, maxJobDist);
+	}
+
+	/**
+	 * Offers all a serialized chart data for all three distributions included
+	 * in the generator
+	 */
+	@Override
+	public String toCSV() {
+		StringBuilder sb = new StringBuilder("Size:\n");
+		sb.append(sizeDistribution.toCSV());
+		sb.append("Duration (max - " + maxJobDuration + "):\n");
+		sb.append(durationDistribution.toCSV());
+		sb.append("Distance (max - " + maxJobDistance + "):\n");
+		sb.append(distanceDistribution.toCSV());
+		return sb.toString();
 	}
 }
