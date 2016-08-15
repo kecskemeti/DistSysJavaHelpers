@@ -20,6 +20,7 @@
  * 
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
+package uk.ac.ljmu.cmp.distsys.simulator.tests;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -34,16 +35,21 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.trace.TraceProducerFoundation;
 /**
  * Foundation for random generated traces
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2015"
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2015"
  */
 public abstract class GenericRandomTraceGenerator extends TraceProducerFoundation {
+
+	public static final int defaultSeed = 1;
 
 	/**
 	 * To influence the random behavior of this class one is allowed to replace
 	 * the generator any time with other Random implementations or with other
 	 * generators with a different seed.
 	 */
-	public static Random r = new Random(1);
+	public static Random r = new Random(defaultSeed);
 
 	/**
 	 * The list of currently generated jobs. (this list gets overwritten if a
@@ -74,6 +80,10 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 
 	/**
 	 * Allows a different number of jobs to be generated in a single run.
+	 * 
+	 * Setting this value to negative allows concurrent modifications of jobNum
+	 * and maxtotalprocs, i.e., the setting of the other will not take effect
+	 * until you set this back to something positive.
 	 * 
 	 * @param jobNum
 	 *            the new number of jobs for the length of the
@@ -108,6 +118,10 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	 * Sets the total processors available for a parallel section. For details,
 	 * see the documentation of getMaxTotalProcs().
 	 * 
+	 * Setting this value to negative allows concurrent modifications of jobNum
+	 * and maxtotalprocs, i.e., the setting of the other will not take effect
+	 * until you set this back to something positive.
+	 * 
 	 * @param maxTotalProcs
 	 *            a new maximum processor count in the later generated parallel
 	 *            sections.
@@ -129,7 +143,7 @@ public abstract class GenericRandomTraceGenerator extends TraceProducerFoundatio
 	final protected void regenJobs() throws TraceManagementException {
 		if (isPrepared()) {
 			try {
-				if (jobIndex != 0) {
+				if (jobIndex < 0 || jobIndex >= currentlyGenerated.size()) {
 					System.err.println("Random trace generation starts at " + Calendar.getInstance().getTime());
 					currentlyGenerated = generateJobs();
 					System.err.println("Random trace generation stops at " + Calendar.getInstance().getTime());

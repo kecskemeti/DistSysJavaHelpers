@@ -55,6 +55,9 @@ public class FileBasedTraceProducerFactory {
 	 *            the last job to be included from the trace
 	 * @param furtherjobs
 	 *            <i>true</i> if it is allowed to look further in the trace
+	 * @param maxProcs
+	 *            Only used by producers which are capable to scale their jobs
+	 *            in processor count
 	 * @param jobType
 	 *            the kind of jobs to instantiate
 	 * @return The trace producer. <b>Warning:</b> If the trace producer kind
@@ -66,9 +69,12 @@ public class FileBasedTraceProducerFactory {
 	 *             if the jobType cannot be instantiated correctly
 	 * @throws IOException
 	 *             file reading problem
+	 * @throws TraceManagementException
+	 *             if a random trace generation behaves unexpectedly
 	 */
 	public static GenericTraceProducer getProducerFromFile(String fileName, int from, int to, boolean furtherjobs,
-			Class<? extends Job> jobType) throws SecurityException, NoSuchMethodException, IOException {
+			int maxProcs, Class<? extends Job> jobType)
+			throws SecurityException, NoSuchMethodException, IOException, TraceManagementException {
 		GenericTraceProducer producer = null;
 		if (fileName.endsWith(".gwf")) {
 			producer = new GWFReader(fileName, from, to, furtherjobs, jobType);
@@ -76,6 +82,11 @@ public class FileBasedTraceProducerFactory {
 			producer = new SWFReader(fileName, from, to, furtherjobs, jobType);
 		} else if (fileName.endsWith(".srtg")) {
 			SimpleRandomTraceGenerator srtg = SimpleRandomTraceGenerator.getInstanceFromFile(jobType, fileName);
+			srtg.setMaxTotalProcs(maxProcs);
+			if (from != 0) {
+				srtg.setJobNum(from);
+				srtg.getAllJobs();
+			}
 			srtg.setJobNum(to - from);
 			producer = srtg;
 		} else if (fileName.endsWith(".one2")) {
