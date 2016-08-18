@@ -20,7 +20,7 @@
  * 
  *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  */
-package uk.ac.ljmu.cmp.distsys.simulator.tests;
+package uk.ac.ljmu.cms.distsys.simulator.tests;
 
 import java.io.BufferedWriter;
 import java.io.File;
