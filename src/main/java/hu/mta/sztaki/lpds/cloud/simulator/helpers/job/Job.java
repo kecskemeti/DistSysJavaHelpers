@@ -29,7 +29,8 @@ package hu.mta.sztaki.lpds.cloud.simulator.helpers.job;
  * class comes rather handy when handling execution traces of real life
  * infrastructures in simulated systems.
  * 
- * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems, MTA SZTAKI (c) 2012"
+ * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
+ *         MTA SZTAKI (c) 2012"
  */
 public abstract class Job {
 	/**
@@ -179,7 +180,8 @@ public abstract class Job {
 	@Override
 	public String toString() {
 		return "Job: " + id + " Submit Time: " + submittimeSecs + " Start Time: " + starttimeSecs + " Stop Time: "
-				+ stoptimeSecs + " Procs: " + nprocs;
+				+ stoptimeSecs + " Procs: " + nprocs
+				+ (preceding == null ? "" : (" Preceding ID: " + preceding.getId()));
 	}
 
 	/**
@@ -338,7 +340,7 @@ public abstract class Job {
 	 * @param other
 	 *            the job to check the overlapping with
 	 * @return
-	 * 		<ul>
+	 *         <ul>
 	 *         <li><i>true</i> if the jobs have a some overlapping sections</li>
 	 *         <li><i>false</i> otherwise</li>
 	 *         </ul>

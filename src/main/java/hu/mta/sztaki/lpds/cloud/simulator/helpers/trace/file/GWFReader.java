@@ -111,44 +111,20 @@ public class GWFReader extends TraceFileReaderFoundation {
 	public Job createJobFromLine(String jobstring)
 			throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		boolean askalon = jobstring.endsWith("ASKALON");
-		final int maxLen = 14;
-		char[] str = jobstring.toCharArray();
-		StringBuffer[] elements = new StringBuffer[maxLen];
-		int j = 0;
-		for (j = 0; j < maxLen; j++) {
-			elements[j] = new StringBuffer(12);
-		}
-		boolean wrt = false;
-		j = 0;
-		for (int i = 0; i < str.length; i++) {
-			if (str[i] == ' ' || str[i] == '\t') {
-				if (wrt) {
-					j++;
-					if (j == maxLen) {
-						break;
-					}
-					wrt = false;
-				}
-			} else {
-				wrt = true;
-				elements[j].append(str[i]);
-			}
-		}
-		// Simple but significantly slower (3x)
-		// String[] elements = jobstring.split("\\s+");
-		int jobState = Integer.parseInt(elements[10].toString());
-		int procs = Integer.parseInt(elements[4].toString());
-		long runtime = Long.parseLong(elements[3].toString());
-		long waitTime = Long.parseLong(elements[2].toString());
+		String[] elements = jobstring.trim().split("\\s+");
+		int jobState = Integer.parseInt(elements[10]);
+		int procs = Integer.parseInt(elements[4]);
+		long runtime = Long.parseLong(elements[3]);
+		long waitTime = Long.parseLong(elements[2]);
 		if (jobState != 1 && (procs < 1 || runtime < 0)) {
 			return null;
 		} else {
 			return jobCreator.newInstance(
 					// id
-					elements[0].toString(),
+					elements[0],
 					// submit time:
 					Long.parseLong(
-							askalon ? elements[1].substring(0, elements[1].length() - 3) : elements[1].toString()),
+							askalon ? elements[1].substring(0, elements[1].length() - 3) : elements[1]),
 					// queueing time:
 					Math.max(0, waitTime),
 					// execution time:
@@ -156,15 +132,15 @@ public class GWFReader extends TraceFileReaderFoundation {
 					// Number of processors
 					Math.max(1, procs),
 					// average execution time
-					(long) Double.parseDouble(elements[5].toString()),
+					(long) Double.parseDouble(elements[5]),
 					// no memory
-					(long) Double.parseDouble(elements[6].toString()),
+					(long) Double.parseDouble(elements[6]),
 					// User name:
-					parseTextualField(elements[11].toString()),
+					parseTextualField(elements[11]),
 					// Group membership:
-					parseTextualField(elements[12].toString()),
+					parseTextualField(elements[12]),
 					// executable name:
-					parseTextualField(elements[13].toString()),
+					parseTextualField(elements[13]),
 					// No preceding job
 					null, 0);
 		}

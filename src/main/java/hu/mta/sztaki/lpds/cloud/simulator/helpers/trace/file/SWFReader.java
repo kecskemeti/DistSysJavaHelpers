@@ -87,6 +87,11 @@ public class SWFReader extends TraceFileReaderFoundation {
 		if (jobState != 1 && (procs < 1 || runtime < 0)) {
 			return null;
 		} else {
+			final String preceedingJobId = fragments[16].trim();
+			Job preceedingJob = null;
+			if (!preceedingJobId.equals("-1")) {
+				preceedingJob = jobLookupInCache(preceedingJobId);
+			}
 			return jobCreator.newInstance(
 					// id:
 					fragments[0],
@@ -95,7 +100,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 					// wait time in secs:
 					Math.max(0, waitTime),
 					// run time in secs:
-					Math.max(0,runtime),
+					Math.max(0, runtime),
 					// allocated processors:
 					Math.max(1, procs),
 					// average cpu time:
@@ -107,9 +112,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 					// groupid:
 					fragments[12],
 					// execid:
-					fragments[13],
-					// preceeding job - not supported yet
-					null, 0);
+					fragments[13], preceedingJob, preceedingJob == null ? 0 : Long.parseLong(fragments[17]));
 		}
 	}
 

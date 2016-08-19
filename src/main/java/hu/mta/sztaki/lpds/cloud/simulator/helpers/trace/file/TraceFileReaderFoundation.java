@@ -30,6 +30,7 @@ import java.io.FileReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
@@ -74,6 +75,12 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 * there were no getJobs, or getAllJobs calls.
 	 */
 	private List<Job> currentlyOffered;
+
+	/**
+	 * allows rapid job lookups while the currently offered joblist is
+	 * constructed
+	 */
+	private HashMap<String, Job> fastCache;
 	/**
 	 * The number of jobs read from the tracefile so far. In general this should
 	 * be over 0, if it is -1, then the tracefile is either not yet read or its
@@ -136,6 +143,7 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 			System.err.println(traceKind + " trace file reader starts for: " + toBeRead + " at "
 					+ Calendar.getInstance().getTime());
 			currentlyOffered = new ArrayList<Job>();
+			fastCache = new HashMap<String, Job>();
 			if (actualReader == null) {
 				actualReader = new BufferedReader(new FileReader(toBeRead));
 			}
@@ -159,7 +167,7 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 					Job toAdd = createJobFromLine(line);
 					if (toAdd == null)
 						continue;
-					currentlyOffered.add(toAdd);
+					fastCache.put(toAdd.getId(), toAdd);
 				} else {
 					metaDataCollector(line);
 				}
@@ -168,11 +176,24 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 				actualReader.close();
 				lineIdx = -1; // marks the end of the file
 			}
+			currentlyOffered.addAll(fastCache.values());
 			System.err.println(traceKind + " trace file reader stops for: " + toBeRead + " at "
 					+ Calendar.getInstance().getTime());
 		} catch (Exception e) {
 			throw new RuntimeException("Error in line: " + lineIdx, e);
 		}
+	}
+
+	/**
+	 * Using job ids this function shecks if a job is in the currently offered
+	 * list. If it is then returns with it.
+	 * 
+	 * @param id
+	 *            The job's id which is looked for.
+	 * @return the job with the specific jobid
+	 */
+	protected Job jobLookupInCache(final String id) {
+		return fastCache.get(id);
 	}
 
 	/**
