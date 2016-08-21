@@ -18,6 +18,7 @@
  *   You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
+ *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
  */
 
@@ -29,6 +30,8 @@ package hu.mta.sztaki.lpds.cloud.simulator.helpers.job;
  * class comes rather handy when handling execution traces of real life
  * infrastructures in simulated systems.
  * 
+ * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
+ *         Moores University, (c) 2016"
  * @author "Gabor Kecskemeti, Laboratory of Parallel and Distributed Systems,
  *         MTA SZTAKI (c) 2012"
  */
@@ -155,7 +158,7 @@ public abstract class Job {
 		this.nprocs = nprocs;
 		// Assumes full CPU utilization for every processor for the complete
 		// runtime of the job
-		this.perProcCPUTime = ppCpu < 0 ? exec : ppCpu;
+		this.perProcCPUTime = ppCpu < 0 ? ((double)exec)/nprocs : ppCpu;
 		this.usedMemory = ppMem;
 		this.user = user;
 		this.group = group;
