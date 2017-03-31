@@ -230,8 +230,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 		if(jobList == null)
 			return null;
 
-		Collections.sort(jobList, jobComparator);
-		return jobList;
+		Collections.sort(currentlyOffered, jobComparator);
+		return currentlyOffered;
 	}
 
 	/**
