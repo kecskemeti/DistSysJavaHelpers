@@ -255,6 +255,25 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	}
 
 	/**
+	 * Performs the {@link #getJobs(int)} function and then sorts the collection using a Job Comparitor
+	 *
+	 * @param num the number of jobs to be collected in the current run.
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return the sorted set of jobs collected from the tracefile.
+	 * @throws NoFurtherJobsException
+	 *             if there are no further jobs available in the tracefile.
+	 */
+	public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws NoFurtherJobsException {
+		List<Job> jobList = getAllJobs();
+
+		if(jobList == null)
+			return null;
+
+		Collections.sort(currentlyOffered, jobComparator);
+		return currentlyOffered;
+	}
+
+	/**
 	 * Provides a simple implementation to determine if a particular line of the
 	 * tracefile describes a job.
 	 * 
