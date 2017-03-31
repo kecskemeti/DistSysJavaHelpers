@@ -30,6 +30,8 @@ import java.io.FileReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -99,8 +101,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 * @param fileName
 	 *            The full path to the file that should act as the source of the
 	 *            jobs produced by this trace producer.
-	 * @param fromThe
-	 *            first job in the file that should be produced in the job
+	 * @param from
+	 *            The first job in the file that should be produced in the job
 	 *            listing output. (please note the counter starts at 0)
 	 * @param to
 	 *            The last job in the file that should be still in the job
@@ -212,6 +214,24 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 		}
 		readTrace(to - from);
 		return currentlyOffered;
+	}
+
+	/**
+	 * Performs the {@link #getAllJobs()} function and then sorts the collection using a Job Comparitor
+	 *
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return - If there were no previous reading of the tracefile by this
+	 *         reader, then a sorted set of jobs in the range between "from" and
+	 *         "to". Otherwise a null list is returned.
+	 */
+	public List<Job> getAllJobs(Comparator<Job> jobComparator) {
+		List<Job> jobList = getAllJobs();
+
+		if(jobList == null)
+			return null;
+
+		Collections.sort(jobList, jobComparator);
+		return jobList;
 	}
 
 	/**
