@@ -99,8 +99,8 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	 * @param fileName
 	 *            The full path to the file that should act as the source of the
 	 *            jobs produced by this trace producer.
-	 * @param fromThe
-	 *            first job in the file that should be produced in the job
+	 * @param from
+	 *            The first job in the file that should be produced in the job
 	 *            listing output. (please note the counter starts at 0)
 	 * @param to
 	 *            The last job in the file that should be still in the job

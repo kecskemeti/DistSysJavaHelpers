@@ -20,12 +20,14 @@
  * 
  *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
+ *  (C) Copyright 2017, André Marques (andrerm124@gmail.com)
  */
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -76,6 +78,18 @@ public interface GenericTraceProducer {
 	public List<Job> getAllJobs() throws TraceManagementException;
 
 	/**
+	 * Allows to query a producer specific set of jobs. The size of the set
+	 * should be determined during runtime by the implementation of the
+	 * producer.
+	 *
+	 * @param jobComparator -
+	 * @return the sorted list of jobs (the length of the job list will be arbitrary
+	 *         from the caller point of view)
+	 * @throws TraceManagementException
+	 */
+	public List<Job> getAllJobs(Comparator<Job> jobComparator) throws TraceManagementException;
+
+	/**
 	 * Allows the query of a specific number of jobs in a set.
 	 * 
 	 * @param num
@@ -91,6 +105,23 @@ public interface GenericTraceProducer {
 	 *             length would be 0.
 	 */
 	public List<Job> getJobs(final int num) throws TraceManagementException;
+
+	/**
+	 *
+	 * @param num
+	 *            The required size of the returning job set. (Please note: this
+	 *            is a maximum length, in cases the implementor cannot provide
+	 *            further jobs, then calling this function should result in an
+	 *            exception.)
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return the sorted list of jobs (with a size of <= num)
+	 * @throws TraceManagementException
+	 *             is thrown when the implementation of the interface run out of
+	 *             jobs to produce in the array. Please keep in mind that this
+	 *             exception is only supposed to be thrown if the job list's
+	 *             length would be 0.
+	 */
+	public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws TraceManagementException;
 
 	/**
 	 * Determines the processor count of the system this trace was generated

@@ -20,11 +20,15 @@
  * 
  *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
+ *  (C) Copyright 2017, André Marques (andrerm124@gmail.com)
  */
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
@@ -76,5 +80,48 @@ public abstract class TraceProducerFoundation implements GenericTraceProducer {
 	@Override
 	public long getMaxProcCount() {
 		return maxProcCount;
+	}
+
+
+	/**
+	 * Performs the {@link #getAllJobs()} function and then sorts the collection using a Job Comparitor
+	 *
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return - If there were no previous reading of the tracefile by this
+	 *         reader, then a sorted set of jobs in the range between "from" and
+	 *         "to". Otherwise a null list is returned.
+	 */
+	@Override
+	public List<Job> getAllJobs(Comparator<Job> jobComparator) throws TraceManagementException {
+		return sortJobs(getAllJobs(), jobComparator);
+	}
+
+	/**
+	 * Performs the {@link #getJobs(int)} function and then sorts the collection using a Job Comparitor
+	 *
+	 * @param num - The number of jobs to be collected in the current run.
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return the sorted set of jobs collected from the tracefile.
+	 * @throws NoFurtherJobsException
+	 *             if there are no further jobs available in the tracefile.
+	 */
+	@Override
+	public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws TraceManagementException {
+		return sortJobs(getJobs(num), jobComparator);
+	}
+
+	/**
+	 * Sorts a List of Jobs using a supplied Comparitor
+	 *
+	 * @param jobList - The List of Jobs to be sorted
+	 * @param jobComparator - The Comparitor to perform the sorting with
+	 * @return - A sorted List of Jobs or Null if the list was null;
+	 */
+	private List<Job> sortJobs(List<Job> jobList, Comparator<Job> jobComparator) {
+		if(jobList == null)
+			return null;
+
+		Collections.sort(jobList, jobComparator);
+		return jobList;
 	}
 }
