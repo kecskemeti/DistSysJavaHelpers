@@ -30,8 +30,6 @@ import java.io.FileReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -217,24 +215,6 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 	}
 
 	/**
-	 * Performs the {@link #getAllJobs()} function and then sorts the collection using a Job Comparitor
-	 *
-	 * @param jobComparator - The comparitor used to perform the sorting
-	 * @return - If there were no previous reading of the tracefile by this
-	 *         reader, then a sorted set of jobs in the range between "from" and
-	 *         "to". Otherwise a null list is returned.
-	 */
-	public List<Job> getAllJobs(Comparator<Job> jobComparator) {
-		List<Job> jobList = getAllJobs();
-
-		if(jobList == null)
-			return null;
-
-		Collections.sort(currentlyOffered, jobComparator);
-		return currentlyOffered;
-	}
-
-	/**
 	 * Collects all the specified number of jobs from the tracefile (starting
 	 * from the current file pointer). And returns with them. It keeps the file
 	 * pointer so on the next call the job collection can be done continuously.
@@ -251,25 +231,6 @@ public abstract class TraceFileReaderFoundation extends TraceProducerFoundation 
 			throw new NoFurtherJobsException("Run out of jobs in traceFile: " + toBeRead, null);
 		}
 		readTrace(num);
-		return currentlyOffered;
-	}
-
-	/**
-	 * Performs the {@link #getJobs(int)} function and then sorts the collection using a Job Comparitor
-	 *
-	 * @param num the number of jobs to be collected in the current run.
-	 * @param jobComparator - The comparitor used to perform the sorting
-	 * @return the sorted set of jobs collected from the tracefile.
-	 * @throws NoFurtherJobsException
-	 *             if there are no further jobs available in the tracefile.
-	 */
-	public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws NoFurtherJobsException {
-		List<Job> jobList = getAllJobs();
-
-		if(jobList == null)
-			return null;
-
-		Collections.sort(currentlyOffered, jobComparator);
 		return currentlyOffered;
 	}
 

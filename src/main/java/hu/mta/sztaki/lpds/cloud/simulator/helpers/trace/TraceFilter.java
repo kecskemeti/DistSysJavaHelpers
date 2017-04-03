@@ -23,6 +23,7 @@
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -86,11 +87,19 @@ public class TraceFilter implements GenericTraceProducer {
 		return filterJobSet(masterTrace.getAllJobs());
 	}
 
+	@Override public List<Job> getAllJobs(Comparator<Job> jobComparator) throws TraceManagementException {
+		return filterJobSet(masterTrace.getAllJobs(jobComparator));
+	}
+
 	@Override
 	public List<Job> getJobs(int num) throws TraceManagementException {
 		return filterJobSet(masterTrace.getJobs(num));
 	}
-	
+
+	@Override public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws TraceManagementException {
+		return filterJobSet(masterTrace.getJobs(num, jobComparator));
+	}
+
 	@Override
 	public long getMaxProcCount() {
 		return masterTrace.getMaxProcCount();

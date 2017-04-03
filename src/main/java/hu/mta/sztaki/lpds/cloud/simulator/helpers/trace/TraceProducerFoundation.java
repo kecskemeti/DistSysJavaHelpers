@@ -25,6 +25,9 @@
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
@@ -76,5 +79,45 @@ public abstract class TraceProducerFoundation implements GenericTraceProducer {
 	@Override
 	public long getMaxProcCount() {
 		return maxProcCount;
+	}
+
+
+	/**
+	 * Performs the {@link #getAllJobs()} function and then sorts the collection using a Job Comparitor
+	 *
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return - If there were no previous reading of the tracefile by this
+	 *         reader, then a sorted set of jobs in the range between "from" and
+	 *         "to". Otherwise a null list is returned.
+	 */
+	@Override
+	public List<Job> getAllJobs(Comparator<Job> jobComparator) throws TraceManagementException {
+		List<Job> jobList = getAllJobs();
+
+		if(jobList == null)
+			return null;
+
+		Collections.sort(jobList, jobComparator);
+		return jobList;
+	}
+
+	/**
+	 * Performs the {@link #getJobs(int)} function and then sorts the collection using a Job Comparitor
+	 *
+	 * @param num the number of jobs to be collected in the current run.
+	 * @param jobComparator - The comparitor used to perform the sorting
+	 * @return the sorted set of jobs collected from the tracefile.
+	 * @throws NoFurtherJobsException
+	 *             if there are no further jobs available in the tracefile.
+	 */
+	@Override
+	public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws TraceManagementException {
+		List<Job> jobList = getAllJobs();
+
+		if(jobList == null)
+			return null;
+
+		Collections.sort(jobList, jobComparator);
+		return jobList;
 	}
 }
