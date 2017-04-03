@@ -20,6 +20,7 @@
  * 
  *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
+ *  (C) Copyright 2017, André Marques (andrerm124@gmail.com)
  */
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;

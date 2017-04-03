@@ -20,6 +20,7 @@
  * 
  *  (C) Copyright 2016, Gabor Kecskemeti (g.kecskemeti@ljmu.ac.uk)
  *  (C) Copyright 2012-2015, Gabor Kecskemeti (kecskemeti.gabor@sztaki.mta.hu)
+ *  (C) Copyright 2017, André Marques (andrerm124@gmail.com)
  */
 
 package hu.mta.sztaki.lpds.cloud.simulator.helpers.trace;
@@ -92,19 +93,13 @@ public abstract class TraceProducerFoundation implements GenericTraceProducer {
 	 */
 	@Override
 	public List<Job> getAllJobs(Comparator<Job> jobComparator) throws TraceManagementException {
-		List<Job> jobList = getAllJobs();
-
-		if(jobList == null)
-			return null;
-
-		Collections.sort(jobList, jobComparator);
-		return jobList;
+		return sortJobs(getAllJobs(), jobComparator);
 	}
 
 	/**
 	 * Performs the {@link #getJobs(int)} function and then sorts the collection using a Job Comparitor
 	 *
-	 * @param num the number of jobs to be collected in the current run.
+	 * @param num - The number of jobs to be collected in the current run.
 	 * @param jobComparator - The comparitor used to perform the sorting
 	 * @return the sorted set of jobs collected from the tracefile.
 	 * @throws NoFurtherJobsException
@@ -112,8 +107,17 @@ public abstract class TraceProducerFoundation implements GenericTraceProducer {
 	 */
 	@Override
 	public List<Job> getJobs(int num, Comparator<Job> jobComparator) throws TraceManagementException {
-		List<Job> jobList = getAllJobs();
+		return sortJobs(getJobs(num), jobComparator);
+	}
 
+	/**
+	 * Sorts a List of Jobs using a supplied Comparitor
+	 *
+	 * @param jobList - The List of Jobs to be sorted
+	 * @param jobComparator - The Comparitor to perform the sorting with
+	 * @return - A sorted List of Jobs or Null if the list was null;
+	 */
+	private List<Job> sortJobs(List<Job> jobList, Comparator<Job> jobComparator) {
 		if(jobList == null)
 			return null;
 
