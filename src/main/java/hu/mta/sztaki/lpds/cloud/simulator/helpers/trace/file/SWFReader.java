@@ -74,6 +74,7 @@ public class SWFReader extends TraceFileReaderFoundation {
 	protected Job createJobFromLine(String line)
 			throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		final String[] fragments = line.trim().split("\\s+");
+		try {
 		/**
 		 * String id, long submit, long queue, long exec, int nprocs, double
 		 * ppCpu, long ppMem, String user, String group, String executable, Job
@@ -113,6 +114,10 @@ public class SWFReader extends TraceFileReaderFoundation {
 					fragments[12],
 					// execid:
 					fragments[13], preceedingJob, preceedingJob == null ? 0 : Long.parseLong(fragments[17]));
+		}
+		} catch(ArrayIndexOutOfBoundsException ex) {
+			// Incomplete line, ignore it
+			return null;
 		}
 	}
 
