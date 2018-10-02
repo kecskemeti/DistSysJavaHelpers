@@ -30,7 +30,7 @@ import hu.mta.sztaki.lpds.cloud.simulator.helpers.job.Job;
 
 /**
  * An implementation of the generic trace file reader functionality to support
- * files from the standard workloads archive (http://gwa.ewi.tudelft.nl/).
+ * files from the standard workloads archive (http://www.cs.huji.ac.il/labs/parallel/workload/swf.html).
  * 
  * @author "Gabor Kecskemeti, Department of Computer Science, Liverpool John
  *         Moores University, (c) 2016"
