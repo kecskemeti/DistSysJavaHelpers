@@ -97,5 +97,18 @@ public class JobListAnalyser {
 			return Long.signum(o1.getStartTimeInstance() - o2.getStartTimeInstance());
 		}
 	};
+	/**
+	 * A job comparator that allows the ordering of jobs based on their
+	 * client start time instance.
+	 */
+	public static final Comparator<Job> clientStartTimeComparator = new Comparator<Job>() {
+		@Override
+		public int compare(Job o1, Job o2) {
+			return Long.signum(o1.get_client_start_time() - o2.get_client_start_time());
+			//see it later
+			
+		}
+	};
+
 
 }

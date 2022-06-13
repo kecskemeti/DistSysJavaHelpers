@@ -120,7 +120,18 @@ public abstract class Job {
 	 * Shows if this job has already been executed by the simulator.
 	 */
 	private boolean ran = false;
-
+	/**
+	 * This job caused cold-start
+	 */
+	public boolean is_cold = false;
+	/**
+	 * Time job start simulated in instance
+	 */
+	private long client_start_time = 0;
+	/**
+	 * Time job end simulated in instance
+	 */
+	private long client_end_time = 0;
 	/**
 	 * The generic constructor to be used by most of the trace generators and in
 	 * most of the use cases.
@@ -152,8 +163,8 @@ public abstract class Job {
 		submittimeSecs = submit;
 		queuetimeSecs = queue;
 		exectimeSecs = exec;
-		stoptimeSecs = queuetimeSecs + exectimeSecs + submittimeSecs;
-		starttimeSecs = submittimeSecs + queuetimeSecs;
+		stoptimeSecs = client_end_time = queuetimeSecs + exectimeSecs + submittimeSecs;
+		starttimeSecs = client_start_time = submittimeSecs + queuetimeSecs;
 		midExecInstanceSecs = starttimeSecs + exectimeSecs / 2;
 		this.nprocs = nprocs;
 		// Assumes full CPU utilization for every processor for the complete
@@ -266,7 +277,22 @@ public abstract class Job {
 	public long getMidExecInstanceSecs() {
 		return midExecInstanceSecs;
 	}
-
+	/**
+	 * Determines the time instance start to simulate this job
+	 * 
+	 * @return time of job start simulated
+	 */
+	public long get_client_start_time() {
+		return this.client_start_time;
+	}
+	/**
+	 * Determines the time instance end to simulate this job
+	 * 
+	 * @return time of job end simulated
+	 */
+	public long get_client_end_time() {
+		return this.client_end_time;
+	}
 	/**
 	 * Simulator specific implementation that can set the real start time
 	 * (allows the query of the current simulated time instance independent from
